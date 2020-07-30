@@ -11,6 +11,8 @@
 npm install prettier-xls -g
 ```
 
+使用
+
 ```sh
 xls [path]
 ```
