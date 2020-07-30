@@ -1,14 +1,13 @@
-const fs = require("fs");
-const path = require("path");
+#!/usr/bin/env node
 const xlsx = require("node-xlsx").default;
+const path = require("path");
+const fs = require("fs");
 const dirName = "builds";
-const argsPath = process.argv[2].replace(/\\/g, "/");
+const argsPath = process.argv[2] ? process.argv[2].replace(/\\/g, "/") : "./";
 const copyPath = path.resolve(argsPath, `./${dirName}`);
-console.log(argsPath);
 function copy(src, dst) {
   // 读取目录中的所有文件/目录
   // console.log("辅助", src);
-
   const paths = fs.readdirSync(src);
   paths.forEach(function (item) {
     var _src = src + "/" + item,
