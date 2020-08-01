@@ -2,9 +2,9 @@
 const xlsx = require("node-xlsx").default;
 const path = require("path");
 const fs = require("fs");
-const dirName = "builds";
 const argsPath = process.argv[2] ? process.argv[2].replace(/\\/g, "/") : "./";
-const copyPath = path.resolve(argsPath, `./${dirName}`);
+let dirName = "builds";
+let copyPath = path.resolve(argsPath, `./${dirName}`);
 function copy(src, dst) {
   // 读取目录中的所有文件/目录
   // console.log("辅助", src);
@@ -32,6 +32,12 @@ function copy(src, dst) {
 // 在复制目录前需要判断该目录是否存在，不存在需要先创建目录
 function exists(src, dst, callback) {
   const exists = fs.existsSync(dst);
+  const st = fs.statSync(src);
+  if (st.isFile()) {
+    // 文件流
+    copyPath = path.resolve(argsPath, `./`);
+    return;
+  }
   // 已存在
   if (exists) {
     callback(src, dst);
@@ -52,6 +58,11 @@ function isBuildDir() {
   }
 }
 function dirLoop(paths) {
+  const st = fs.statSync(paths);
+  if (st.isFile()) {
+    isXlsx(paths, paths, "副本");
+    return;
+  }
   const files = fs.readdirSync(paths);
   files.forEach((item) => {
     let fPath = path.join(paths, item);
@@ -64,13 +75,13 @@ function dirLoop(paths) {
     }
   });
 }
-function isXlsx(paths, item) {
+function isXlsx(paths, item, split = "") {
   if (item.endsWith(".xlsx") || item.endsWith(".xls")) {
-    const fPath = paths;
-    const fName = paths.split(".");
-    const workSheetsFromBuffer = xlsx.parse(fs.readFileSync(fPath));
+    // const fPath = paths;
+    const fName = paths.split(".")[0] + split + "." + paths.split(".")[1];
+    const workSheetsFromBuffer = xlsx.parse(fs.readFileSync(paths));
     var buffer = xlsx.build(workSheetsFromBuffer);
-    fs.writeFileSync(paths, buffer);
+    fs.writeFileSync(fName, buffer);
   }
 }
 isBuildDir();
